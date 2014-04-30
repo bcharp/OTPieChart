@@ -2,7 +2,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "OTPieChart"
-  s.version      = "1.0"
+  s.version      = "1.0.1"
   s.summary      = "OTPieChart is pie chart made simple for iOS"
 
   s.description  = <<-DESC
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = "6.0"
 
-  s.source       = { :git => "https://github.com/octo-online/OTPieChart.git", :tag => "1.0.0" }
+  s.source       = { :git => "git@github.com:bcharp/OTPieChart.git", :tag => "1.0.1" }
 
   s.source_files  =  "PieChart/**/*.{h,m}"
 
