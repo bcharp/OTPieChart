@@ -46,101 +46,100 @@ Then, add the datasource and the delegate. Don't forget to import OTPieChartView
 
 And in the implementation file, copy & paste the following code : 
 
-
-- (void)viewDidLoad
-{
-	[super viewDidLoad];
-	[bcNavigationController setCurrentDot:0];
-	[bcNavigationController setMaximumDots:0];
-	[bcNavigationController setNavigationMode:BCNavigationNavBar];
-	// Do any additional setup after loading the view.
-
-	NSArray *colors = [NSArray arrayWithObjects:
-					   UIColorFromRGB(0x1a4ada),
-					   UIColorFromRGB(0x3d40be),
-					   UIColorFromRGB(0x6035a3),
-					   UIColorFromRGB(0x832b87),
-					   UIColorFromRGB(0xa6206c),
-					   UIColorFromRGB(0xc91650),
-					   UIColorFromRGB(0xec0b35),
-					   UIColorFromRGB(0xea5601),
-					   UIColorFromRGB(0xfeb003),
-					   UIColorFromRGB(0xeacb01),
-					   nil];
-
-	CGFloat percentageValue = 0.1;
-	NSString *label = [NSString stringWithFormat:@"Value : %.2f %%", percentageValue];
-
-	NSMutableArray *tmpSlices = [NSMutableArray array];
-
-	// Create the slices :
-	for (UIColor *color in colors)
+	- (void)viewDidLoad
 	{
-		OTSlice *slice = [[OTSlice alloc] initWithLabel:label
-										percentageValue:percentageValue
-												  color:color];
-		[tmpSlices addObject:slice];
+		[super viewDidLoad];
+		[bcNavigationController setCurrentDot:0];
+		[bcNavigationController setMaximumDots:0];
+		[bcNavigationController setNavigationMode:BCNavigationNavBar];
+		// Do any additional setup after loading the view.
+		
+		NSArray *colors = [NSArray arrayWithObjects:
+						   UIColorFromRGB(0x1a4ada),
+						   UIColorFromRGB(0x3d40be),
+						   UIColorFromRGB(0x6035a3),
+						   UIColorFromRGB(0x832b87),
+						   UIColorFromRGB(0xa6206c),
+						   UIColorFromRGB(0xc91650),
+						   UIColorFromRGB(0xec0b35),
+						   UIColorFromRGB(0xea5601),
+						   UIColorFromRGB(0xfeb003),
+						   UIColorFromRGB(0xeacb01),
+						   nil];
+	
+		CGFloat percentageValue = 0.1;
+		NSString *label = [NSString stringWithFormat:@"Value : %.2f %%", percentageValue];
+		
+		NSMutableArray *tmpSlices = [NSMutableArray array];
+		
+		// Create the slices :
+		for (UIColor *color in colors)
+		{
+			OTSlice *slice = [[OTSlice alloc] initWithLabel:label
+											percentageValue:percentageValue
+													  color:color];
+			[tmpSlices addObject:slice];
+		}
+	
+		self.slices = [NSArray arrayWithArray:tmpSlices];
+		
+		// Create the pie Chart
+		
+		OTPieChartView *pieChartView = [[OTPieChartView alloc] initWithFrame:CGRectMake(20, 20, 400, 400)];
+		pieChartView.delegate = self;
+		pieChartView.datasource = self;
+		[self.view addSubview:pieChartView];
+		[pieChartView loadPieChart];
 	}
 
-	self.slices = [NSArray arrayWithArray:tmpSlices];
-
-	// Create the pie Chart
-
-	OTPieChartView *pieChartView = [[OTPieChartView alloc] initWithFrame:CGRectMake(20, 20, 400, 400)];
-	pieChartView.delegate = self;
-	pieChartView.datasource = self;
-	[self.view addSubview:pieChartView];
-	[pieChartView loadPieChart];
-}
-
-/**************************************************************************************************/
-#pragma mark - OTPieChartDatasource
-
-- (NSUInteger)numbertOfSliceForPieChartIndex:(OTPieChartView *)thePieChart
-{
-	return self.slices.count;
-}
-
-- (CGFloat)pieChart:(OTPieChartView *)thePieChart getPercentageValue:(NSUInteger)pieChartIndex
-{
-	if ([self.slices count] > pieChartIndex)
+	/**************************************************************************************************/
+	#pragma mark - OTPieChartDatasource
+	
+	- (NSUInteger)numbertOfSliceForPieChartIndex:(OTPieChartView *)thePieChart
+	{
+		return self.slices.count;
+	}
+	
+	- (CGFloat)pieChart:(OTPieChartView *)thePieChart getPercentageValue:(NSUInteger)pieChartIndex
+	{
+		if ([self.slices count] > pieChartIndex)
+		{
+			OTSlice *slice = [self.slices objectAtIndex:pieChartIndex];
+			return slice.percentageValue;
+		}
+		else
+		{
+			return 0.0;
+		}
+	}
+	
+	- (UIColor *)pieChart:(OTPieChartView *)thePieChart getSliceColor:(NSUInteger)pieChartIndex
+	{
+		if ([self.slices count] > pieChartIndex)
+		{
+			OTSlice *slice = [self.slices objectAtIndex:pieChartIndex];
+			return slice.color;
+		}
+		else
+		{
+			return nil;
+		}
+	}
+	
+	- (NSString *)pieChart:(OTPieChartView *)thePieChart getSliceLabel:(NSUInteger)pieChartIndex
 	{
 		OTSlice *slice = [self.slices objectAtIndex:pieChartIndex];
-		return slice.percentageValue;
+	
+		return slice.title;
 	}
-	else
+	
+	/**************************************************************************************************/
+	#pragma mark - OTPieChartDelegate
+	
+	- (void)pieChart:(OTPieChartView *)thePieChart didSelectSliceAtIndex:(NSUInteger)pieChartIndex
 	{
-		return 0.0;
+		NSLog(@"pie clicked : %d", pieChartIndex);
 	}
-}
-
-- (UIColor *)pieChart:(OTPieChartView *)thePieChart getSliceColor:(NSUInteger)pieChartIndex
-{
-	if ([self.slices count] > pieChartIndex)
-	{
-		OTSlice *slice = [self.slices objectAtIndex:pieChartIndex];
-		return slice.color;
-	}
-	else
-	{
-		return nil;
-	}
-}
-
-- (NSString *)pieChart:(OTPieChartView *)thePieChart getSliceLabel:(NSUInteger)pieChartIndex
-{
-	OTSlice *slice = [self.slices objectAtIndex:pieChartIndex];
-
-	return slice.title;
-}
-
-/**************************************************************************************************/
-#pragma mark - OTPieChartDelegate
-
-- (void)pieChart:(OTPieChartView *)thePieChart didSelectSliceAtIndex:(NSUInteger)pieChartIndex
-{
-	NSLog(@"pie clicked : %d", pieChartIndex);
-}
 
 
 
