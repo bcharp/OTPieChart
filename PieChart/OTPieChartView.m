@@ -34,6 +34,8 @@
 
 #define SHOULD_DRAW_GRADIENT_ON_SLICES NO
 
+#define SHOULD_DRAW_SHADOW_ON_SLICES   YES
+
 @interface OTPieChartView ()
 
 - (void)resetView;
@@ -128,6 +130,31 @@
 	CGFloat sliceOuterRadiusValue = [self sliceOuterRadius];
 	BOOL isLegendDisplayInsideSlice = [self shouldDisplayLegendInsideSlice];
 
+	if (SHOULD_DRAW_SHADOW_ON_SLICES) {
+		OTSliceView *sliceLayer = [[OTSliceView alloc] init];
+		sliceLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+		sliceLayer.backgroundColor = [UIColor clearColor].CGColor;
+		sliceLayer.startAngle = -M_PI / 2;
+		sliceLayer.sliceAngle = 2 * M_PI;
+		sliceLayer.sliceColor = [UIColor purpleColor];
+		sliceLayer.shouldDisplayGradient = SHOULD_DRAW_GRADIENT_ON_SLICES;
+
+		sliceLayer.sliceSeparation = sliceSeparationValue;
+		sliceLayer.innerRadius = sliceInnerRadiusValue;
+		sliceLayer.outerRadius = sliceOuterRadiusValue;
+		sliceLayer.shouldDisplayLegendInsideSlice = isLegendDisplayInsideSlice;
+
+		/* Shadow would be around here */
+		sliceLayer.shadowColor = [UIColor blackColor].CGColor;
+		sliceLayer.shadowOffset = CGSizeMake(5, 5);
+		sliceLayer.shadowOpacity = 0.5;
+		sliceLayer.shadowRadius = 3.0;
+
+		[self.layer addSublayer:sliceLayer];
+
+		[sliceLayer setNeedsDisplay];
+	}
+
 	for (NSUInteger i = 0; i < numberOfSlice; i++) {
 		CGFloat angle = [self.datasource pieChart:self getPercentageValue:i] * 2 * M_PI;
 
@@ -143,6 +170,7 @@
 		sliceLayer.innerRadius = sliceInnerRadiusValue;
 		sliceLayer.outerRadius = sliceOuterRadiusValue;
 		sliceLayer.shouldDisplayLegendInsideSlice = isLegendDisplayInsideSlice;
+
 
 		if ([self.datasource respondsToSelector:@selector(pieChart:getSliceLabel:)]) {
 			sliceLayer.title = [self.datasource pieChart:self getSliceLabel:i];
@@ -175,6 +203,11 @@
  * This method compute the appropriate size for a label
  */
 - (CGRect)computeLegendSizeForSlice:(OTSliceView *)sliceView {
+	if (sliceView.titleView) {
+		return sliceView.titleView.frame;
+	}
+
+
 	UIFont *font = [UIFont defaultFont];
 
 	// Here we compute the frame of the legend UILabel
@@ -505,6 +538,7 @@
 
 - (CGFloat)sliceSeparation {
 	CGFloat value = SLICE_SEPARATION;
+
 	if ([self.delegate respondsToSelector:@selector(sliceSeparationForPieChart:)]) {
 		value = [self.delegate sliceSeparationForPieChart:self];
 	}
@@ -514,6 +548,7 @@
 
 - (CGFloat)sliceInnerRadius {
 	CGFloat value = INNER_RADIUS;
+
 	if ([self.delegate respondsToSelector:@selector(innerRadiusForPieChart:)]) {
 		value = [self.delegate innerRadiusForPieChart:self];
 	}
@@ -523,6 +558,7 @@
 
 - (CGFloat)sliceOuterRadius {
 	CGFloat value = OUTER_RADIUS;
+
 	if ([self.delegate respondsToSelector:@selector(outerRadiusForPieChart:)]) {
 		value = [self.delegate outerRadiusForPieChart:self];
 	}
@@ -532,6 +568,7 @@
 
 - (BOOL)shouldDisplayLegendInsideSlice {
 	BOOL isLegendDisplayInsideSlice = DISPLAY_LEGEND_INSIDE_SLICE;
+
 	if ([self.delegate respondsToSelector:@selector(shouldDisplayLegendInSliceForPieChart:)]) {
 		isLegendDisplayInsideSlice = [self.delegate shouldDisplayLegendInSliceForPieChart:self];
 	}
